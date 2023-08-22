@@ -2,11 +2,9 @@
 using EFT;
 using System.Reflection;
 using UnityEngine;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine.XR;
 
 namespace QuestZoneAPI.Patches
 {
@@ -19,63 +17,73 @@ namespace QuestZoneAPI.Patches
 
         public static List<ZoneClass> GetZones()
         {
+            Logger.LogInfo("Getting Custom Quest Zones...");
             var zones = Helpers.WebRequestHelper.Get<List<ZoneClass>>("/quests/zones/getZones");
-            Logger.LogInfo(zones.First().zoneName);
+            Logger.LogInfo(zones.First().ZoneName);
             return zones;
         }
 
         public static void CreatePlaceItemZone(ZoneClass zone)
         {
+            Logger.LogInfo("Creating Zone...");
+            Logger.LogInfo($"{zone.ZoneName}");
             GameObject questZone = new GameObject();
 
             BoxCollider collider = questZone.AddComponent<BoxCollider>();
             collider.isTrigger = true;
-            Vector3 position = new Vector3(float.Parse(zone.position.x), float.Parse(zone.position.y), float.Parse(zone.position.z));
+            Vector3 position = new Vector3(float.Parse(zone.Position.X), float.Parse(zone.Position.Y), float.Parse(zone.Position.Z));
+            Vector3 scale = new Vector3(float.Parse(zone.Scale.X), float.Parse(zone.Scale.Y), float.Parse(zone.Scale.Z));
             questZone.transform.position = position;
+            questZone.transform.localScale = scale;
             EFT.Interactive.PlaceItemTrigger scriptComp = questZone.AddComponent<EFT.Interactive.PlaceItemTrigger>();
-            scriptComp.SetId(zone.zoneId);
+            scriptComp.SetId(zone.ZoneId);
 
             questZone.layer = LayerMask.NameToLayer("Triggers");
-            questZone.name = zone.zoneId;
+            questZone.name = zone.ZoneId;
         }
 
         public static void CreateVisitZone(ZoneClass zone)
         {
+            Logger.LogInfo("Creating Zone...");
+            Logger.LogInfo(zone.ZoneName);
             GameObject questZone = new GameObject();
 
             BoxCollider collider = questZone.AddComponent<BoxCollider>();
             collider.isTrigger = true;
-            Vector3 position = new Vector3(float.Parse(zone.position.x), float.Parse(zone.position.y), float.Parse(zone.position.z));
+            Vector3 position = new Vector3(float.Parse(zone.Position.X), float.Parse(zone.Position.Y), float.Parse(zone.Position.Z));
+            Vector3 scale = new Vector3(float.Parse(zone.Scale.X), float.Parse(zone.Scale.Y), float.Parse(zone.Scale.Z));
             questZone.transform.position = position;
+            questZone.transform.localScale = scale;
             EFT.Interactive.ExperienceTrigger scriptComp = questZone.AddComponent<EFT.Interactive.ExperienceTrigger>();
-            scriptComp.SetId(zone.zoneId);
+            scriptComp.SetId(zone.ZoneId);
 
             questZone.layer = LayerMask.NameToLayer("Triggers");
-            questZone.name = zone.zoneId;
+            questZone.name = zone.ZoneId;
         }
 
         public static void AddZones(List<ZoneClass> zones, string currentLocation)
         {
+            Logger.LogInfo("Adding all zones...");
             foreach (ZoneClass zone in zones)
             {
-                if (zone.zoneLocation.ToLower() == currentLocation.ToLower())
+                if (zone.ZoneLocation.ToLower() == currentLocation.ToLower())
                 {
-                    switch(Enum.Parse(typeof(ZoneType), zone.zoneType))
+                    switch(Enum.Parse(typeof(ZoneType), zone.ZoneType))
                     {
                         case ZoneType.PlaceItem:
-                            Logger.LogInfo(zone.position.x);
-                            Logger.LogInfo(zone.rotation.y);
+                            Logger.LogInfo(zone.Position.X);
+                            Logger.LogInfo(zone.Rotation.Y);
                             CreatePlaceItemZone(zone);
 
                             break;
                         case ZoneType.Visit:
-                            Logger.LogInfo(zone.position.x);
-                            Logger.LogInfo(zone.rotation.y);
+                            Logger.LogInfo(zone.Position.X);
+                            Logger.LogInfo(zone.Rotation.Y);
                             CreateVisitZone(zone);
                             break;
                         default:
-                            Logger.LogInfo(zone.position.x);
-                            Logger.LogInfo(zone.rotation.y);
+                            Logger.LogInfo(zone.Position.X);
+                            Logger.LogInfo(zone.Rotation.Y);
                             CreateVisitZone(zone);
                             break;
                     }
@@ -87,12 +95,12 @@ namespace QuestZoneAPI.Patches
         }
 
         [PatchPostfix]
-        static void PatchPostfix(GameWorld __instance)
+        private static void PatchPostfix(GameWorld __instance)
         {
-            Logger.LogInfo("GameWorld.OnGameStarted");
+            Logger.LogInfo("GameWorld.OnGameStarted [QuestZoneAPI]");
             try
             {
-                string loc = __instance.AllPlayers.First().Location;
+                string loc = __instance.MainPlayer.Location;
                 Logger.LogInfo(loc); // works
                 
                 List<ZoneClass> zones = GetZones();

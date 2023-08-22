@@ -24,27 +24,27 @@ namespace QuestZoneAPI
 
     public class ZoneTransform
     {
-        public string x { get; set; }
-        public string y { get; set; }
-        public string z { get; set; }
+        public string X { get; set; }
+        public string Y { get; set; }
+        public string Z { get; set; }
 
         public ZoneTransform(string x, string y, string z)
         {
-            this.x = x;
-            this.y = y;
-            this.z = z;
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
         }
     }
 
     public class ZoneClass
     {
-        public string zoneId { get; set; }
-        public string zoneName { get; set; }
-        public string zoneLocation { get; set; }
-        public string zoneType { get; set; }
-        public ZoneType zoneTypeEnum { get; set; }
-        public ZoneTransform position { get; set; }
-        public ZoneTransform rotation { get; set; } = new ZoneTransform("0", "0", "0");
-        public ZoneTransform scale { get; set; } = new ZoneTransform("1", "1", "1");
+        public string ZoneId { get; set; }
+        public string ZoneName { get; set; }
+        public string ZoneLocation { get; set; }
+        public string ZoneType { get; set; }
+        public ZoneType ZoneTypeEnum { get; set; }
+        public ZoneTransform Position { get; set; }
+        public ZoneTransform Rotation { get; set; } = new ZoneTransform("0", "0", "0");
+        public ZoneTransform Scale { get; set; } = new ZoneTransform("1", "1", "1");
     }
 }
